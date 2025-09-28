@@ -1,0 +1,15 @@
+.auth-page-main-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  .aut-page-btn {
+    background-color: #7367f0;
+    &:hover {
+      background-color: #7267f0ee;
+    }
+  }
+  .MuiTypography-root {
+    color: #2f2b3dc7;
+  }
+}

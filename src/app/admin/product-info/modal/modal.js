@@ -1,0 +1,55 @@
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import UpdateGroceryItems from '../update-item/[productID]/page';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  minWidth: 500,
+  bgcolor: 'background.paper',
+  border: '2px solid #eeeee',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+  maxHeight: '90vh',
+  overflowY: 'auto',
+};
+
+export default function AddItemToStorePageModal({
+  open,
+  setOpen,
+  // handleChange,
+}) {
+  const handleClose = () =>
+    setOpen((prev) => ({ ...prev, modalOpen: false, dataInfo: '' }));
+
+  return (
+    <div>
+      <Modal
+        open={open.modalOpen}
+        onClose={handleClose}
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
+      >
+        <Box sx={{ ...style, width: 1100 }} component="form">
+          {open.modalOpen && (
+            <>
+              {open.dataInfo === 'update-item' && (
+                <UpdateGroceryItems
+                  handleClose={handleClose}
+                  model={open.model}
+                  product={open.product}
+                  index={open.index}
+                />
+              )}
+            </>
+          )}
+        </Box>
+      </Modal>
+    </div>
+  );
+}
