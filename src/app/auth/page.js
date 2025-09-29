@@ -45,7 +45,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
      axiosWithoutCredential
-      .put('/api/v1/user/login-merchant-user', data)
+      .post('/api/v1/user/login-merchant-user', data)
       .then((result) => {
         toast.success('Merchant User Logged in Successfully!', {
           position: 'top-center',
