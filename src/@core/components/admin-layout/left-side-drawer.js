@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import {
   Divider,
   List,
@@ -6,13 +6,13 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-} from '@mui/material';
-import React, { useEffect } from 'react';
-import Collapse from '@mui/material/Collapse';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Link from 'next/link';
-import useSidebar from './sidebar/useSidebar';
+} from "@mui/material";
+import React, { useEffect } from "react";
+import Collapse from "@mui/material/Collapse";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import Link from "next/link";
+import useSidebar from "./sidebar/useSidebar";
 export default function LeftSideBar({ open }) {
   // const route = usePathname();
   // console.log('current route', route.startsWith('/admin/grocery'));
@@ -24,21 +24,21 @@ export default function LeftSideBar({ open }) {
     sidebarRestaurant,
   } = useSidebar();
   const [sidebarData, setSidebarData] = React.useState([]);
-  const [onClicked, setOnClicked] = React.useState('Home');
+  const [onClicked, setOnClicked] = React.useState("Home");
   const [activeModule, setActiveModule] = React.useState([]);
   const [activeSubModule, setActiveSubModule] = React.useState([]);
   const [activeInnerSubModule, setActiveInnerSubModule] = React.useState([]);
 
   useEffect(() => {
-    if (onClicked === 'Home') {
+    if (onClicked === "Home") {
       setSidebarData(sidebarItems);
-    } else if (onClicked === 'Grocery') {
+    } else if (onClicked === "Grocery") {
       setSidebarData(sidebarGrocery);
-    } else if (onClicked === 'Medicine') {
+    } else if (onClicked === "Medicine") {
       setSidebarData(sidebarMedicine);
-    } else if (onClicked === 'Food') {
+    } else if (onClicked === "Food") {
       setSidebarData(sidebarFood);
-    } else if (onClicked === 'Offering Restaurants') {
+    } else if (onClicked === "Offering Restaurants") {
       setSidebarData(sidebarRestaurant);
     }
   }, [onClicked]);
@@ -76,30 +76,30 @@ export default function LeftSideBar({ open }) {
       <Divider />
       <List sx={{ marginTop: 2 }}>
         {sidebarData.map((listItem, i) => (
-          <ListItem key={i} disablePadding sx={{ display: 'block' }}>
+          <ListItem key={i} disablePadding sx={{ display: "block" }}>
             <Link href={listItem.link}>
               <ListItemButton
                 onClick={() => handleActiveModule(listItem.module)}
                 className="top-button"
                 sx={{
                   background: `${
-                    activeModule.includes(listItem.module) ? '#212929a6 ' : ''
+                    activeModule.includes(listItem.module) ? "#212929a6 " : ""
                   }`,
                   color: `${
-                    activeModule.includes(listItem.module) ? '#fff' : '#959595'
+                    activeModule.includes(listItem.module) ? "#fff" : "#959595"
                   }`,
                 }}
               >
                 <ListItemIcon
                   className="btn-icon"
                   sx={{
-                    minWidth: `${open ? '30px' : '56px'}`,
+                    minWidth: `${open ? "30px" : "56px"}`,
                     color: `${
                       activeModule.includes(listItem.module)
-                        ? '#fff'
-                        : '#959595'
+                        ? "#fff"
+                        : "#959595"
                     }`,
-                    fontSize: '1.2em',
+                    fontSize: "1.2em",
                   }}
                 >
                   {listItem.icon}
@@ -110,7 +110,7 @@ export default function LeftSideBar({ open }) {
                     {activeModule.includes(listItem.module) ? (
                       <ExpandMore />
                     ) : (
-                      <ExpandLess sx={{ transform: 'rotate(90deg)' }} />
+                      <ExpandLess sx={{ transform: "rotate(90deg)" }} />
                     )}
                   </>
                 )}
@@ -128,31 +128,31 @@ export default function LeftSideBar({ open }) {
                     <ListItemButton
                       onClick={() => handleActiveSubModule(item.subModuleName)}
                       sx={{
-                        padding: '0.2em 0em 0.2em 0.5em',
-                        margin: '0.3em 0.5em 0.3em 1em',
-                        borderRadius: '5px',
+                        padding: "0.2em 0em 0.2em 0.5em",
+                        margin: "0.3em 0.5em 0.3em 1em",
+                        borderRadius: "5px",
                         pl: 1,
                         background: `${
                           activeSubModule.includes(item.subModuleName)
-                            ? '#1b2323'
-                            : ''
+                            ? "#1b2323"
+                            : ""
                         }`,
                         color: `${
                           activeSubModule.includes(item.subModuleName)
-                            ? '#fff'
-                            : '#959595'
+                            ? "#fff"
+                            : "#959595"
                         }`,
                       }}
                     >
                       <ListItemIcon
                         sx={{
-                          minWidth: `${open ? '30px' : '56px'}`,
+                          minWidth: `${open ? "30px" : "56px"}`,
                           color: `${
                             activeSubModule.includes(item.subModuleName)
-                              ? '#fff'
-                              : '#959595'
+                              ? "#fff"
+                              : "#959595"
                           }`,
-                          fontSize: '.9em',
+                          fontSize: ".9em",
                         }}
                       >
                         {item.icon}
@@ -165,7 +165,7 @@ export default function LeftSideBar({ open }) {
                           {activeSubModule.includes(item.subModuleName) ? (
                             <ExpandMore />
                           ) : (
-                            <ExpandLess sx={{ transform: 'rotate(90deg)' }} />
+                            <ExpandLess sx={{ transform: "rotate(90deg)" }} />
                           )}
                         </>
                       )}
@@ -186,8 +186,8 @@ export default function LeftSideBar({ open }) {
                                 activeInnerSubModule.includes(
                                   innerItem.innerName
                                 )
-                                  ? '#fff'
-                                  : '#959595'
+                                  ? "#fff"
+                                  : "#959595"
                               }`,
                             }}
                           >
@@ -199,13 +199,13 @@ export default function LeftSideBar({ open }) {
                             >
                               <ListItemIcon
                                 sx={{
-                                  minWidth: `${open ? '30px' : '56px'}`,
+                                  minWidth: `${open ? "30px" : "56px"}`,
                                   color: `${
                                     activeInnerSubModule.includes(
                                       innerItem.innerName
                                     )
-                                      ? '#fff'
-                                      : '#959595'
+                                      ? "#fff"
+                                      : "#959595"
                                   }`,
                                 }}
                               >
