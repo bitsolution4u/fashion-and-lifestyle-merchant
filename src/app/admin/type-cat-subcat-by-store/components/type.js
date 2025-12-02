@@ -136,7 +136,7 @@ export default function TypeInfoTable({
 
       {/* Table */}
       <TableContainer component={Paper}>
-        {!loading ? (
+        {loading ? (
           <TableLoader />
         ) : (
           <Table sx={{ minWidth: 300 }} aria-label="custom pagination table">

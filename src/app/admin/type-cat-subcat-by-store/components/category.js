@@ -137,7 +137,7 @@ export default function CategoryInfoTable({
       </Box>
 
       <TableContainer component={Paper}>
-        {!loading ? (
+        {loading ? (
           <TableLoader />
         ) : (
           <Table sx={{ minWidth: 300 }} aria-label="category table">

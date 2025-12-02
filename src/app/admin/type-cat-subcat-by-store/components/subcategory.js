@@ -140,7 +140,7 @@ export default function SubCategoryInfoTable({
       </Box>
 
       <TableContainer component={Paper}>
-        {!loading ? (
+        {loading ? (
           <TableLoader />
         ) : (
           <Table sx={{ minWidth: 300 }} aria-label="sub-category table">
