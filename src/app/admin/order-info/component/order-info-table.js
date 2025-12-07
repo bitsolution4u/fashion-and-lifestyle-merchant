@@ -24,13 +24,41 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CustomDateInput from "./PickersCustomInput";
 import CustomTextField from "@/@core/components/mui/text-field";
+import addDays from "date-fns/addDays";
 
 export default function OrderInfoTable() {
-  const [orderDate, setOrderDate] = React.useState();
   const [loading, setLoading] = React.useState(false);
   const [allOrderInfo, setAllOrderInfo] = React.useState([]);
   const [tempOrderInfo, setTempOrderInfo] = React.useState([]);
   const [selectedStatus, setSelectedStatus] = React.useState("Pending");
+
+  // --- Bangladesh date helpers ---
+  const getBangladeshTodayStart = () => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const bstTime = new Date(utc + 6 * 60 * 60 * 1000);
+    return new Date(
+      bstTime.getFullYear(),
+      bstTime.getMonth(),
+      bstTime.getDate()
+    );
+  };
+
+  const getBangladeshTodayEnd = () => {
+    const start = getBangladeshTodayStart();
+    start.setHours(23, 59, 59, 999); // end of today
+    return start;
+  };
+
+  const todayStart = getBangladeshTodayStart();
+
+  const minDateObj = new Date(todayStart);
+  minDateObj.setDate(minDateObj.getDate() - 3); // 3 days before today
+
+  const maxDateObj = getBangladeshTodayEnd();
+
+  const [minDate, setMinDate] = React.useState(minDateObj);
+  const [maxDate, setMaxDate] = React.useState(maxDateObj);
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -97,6 +125,8 @@ export default function OrderInfoTable() {
       case "cancel":
       case "canceled":
         return { background: "#FEE2E2", color: "#B91C1C" };
+      case "returned":
+        return { background: "#FEF3C7", color: "#B45309" };
       default:
         return { background: "#E5E7EB", color: "#374151" };
     }
@@ -130,46 +160,19 @@ export default function OrderInfoTable() {
       );
   };
 
-  // const handleFilterOrderData = () => {
-  //   const result = allOrderInfo?.filter((order) => {
-  //     const created = new Date(order.createdAt);
-
-  //     return (
-  //       created.getFullYear() === orderDate.getFullYear() &&
-  //       created.getMonth() === orderDate.getMonth() &&
-  //       created.getDate() === orderDate.getDate()
-  //     );
-  //   });
-
-  //   setTempOrderInfo(result);
-  // };
-
+  // --- Filter function with correct BD dates ---
   const handleFilterOrderData = () => {
-    const result = allOrderInfo?.filter((order) => {
-      const created = new Date(order.createdAt);
-
-      const isSameDate =
-        orderDate &&
-        created.getFullYear() === orderDate.getFullYear() &&
-        created.getMonth() === orderDate.getMonth() &&
-        created.getDate() === orderDate.getDate();
-
-      const isSameStatus =
-        selectedStatus && order.order_status === selectedStatus;
-
-      // FILTER LOGIC:
-      // If user selects BOTH → filter by BOTH
-      // If selects ONLY date → filter by date
-      // If selects ONLY status → filter by status
-      // If selects NONE → return all
-      if (orderDate && selectedStatus) return isSameDate && isSameStatus;
-      if (orderDate && !selectedStatus) return isSameDate;
-      if (!orderDate && selectedStatus) return isSameStatus;
-
-      return true; // no filters selected → all orders
+    setPage(0);
+    const filtered = allOrderInfo.filter((order) => {
+      const orderDate = new Date(order.createdAt); // or deliveryAt if needed
+      return (
+        orderDate >= minDate &&
+        orderDate <= maxDate &&
+        order.order_status === selectedStatus
+      );
     });
 
-    setTempOrderInfo(result);
+    setTempOrderInfo(filtered);
   };
 
   return (
@@ -181,49 +184,89 @@ export default function OrderInfoTable() {
       </Box>
       <Divider />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-8 w-full px-5 mb-10">
-        <Box sx={{ position: "relative", zIndex: 50 }}>
-          <DatePicker
-            dateFormat="dd/MM/yyyy"
-            selected={orderDate}
-            maxDate={new Date()}
-            onChange={(date) => setOrderDate(date)}
-            customInput={<CustomDateInput label="Select Order Date" />}
-            popperPlacement="bottom-start"
-          />
-        </Box>
-        <Autocomplete
-          fullWidth
-          size="small"
-          defaultValue={order_status_info[0]}
-          options={order_status_info}
-          getOptionLabel={(option) => option.value}
-          onChange={(e, value) => setSelectedStatus(value?.value || "")}
-          renderInput={(params) => (
-            <CustomTextField {...params} label="Select Status" />
-          )}
-        />
-        <div className="flex items-end">
-          {loading ? (
-            <Button type="button" variant="contained">
-              <div className="flex items-center">
-                <CircularProgress
-                  style={{ color: "white", marginRight: "10px" }}
-                  size={20}
+      <div className="w-full px-5 my-8 mb-10">
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          {/* From Date */}
+          <div style={{ position: "relative", zIndex: 9999 }}>
+            <DatePicker
+              disablePortal
+              dateFormat="dd/MM/yyyy"
+              selected={minDate}
+              maxDate={addDays(new Date(), 0)}
+              onChange={(date) => setMinDate(date)}
+              customInput={<CustomDateInput label="From" />}
+            />
+          </div>
+
+          {/* To Date */}
+          <div style={{ position: "relative", zIndex: 9999 }}>
+            <DatePicker
+              disablePortal
+              dateFormat="dd/MM/yyyy"
+              selected={maxDate}
+              maxDate={addDays(new Date(), 0)}
+              onChange={(date) => {
+                const end = new Date(date);
+                end.setHours(23, 59, 59, 999); // ensure end of day
+                setMaxDate(end);
+              }}
+              customInput={<CustomDateInput label="To" />}
+            />
+          </div>
+
+          {/* Status Dropdown */}
+          <div style={{ minWidth: "220px" }}>
+            <Autocomplete
+              disablePortal
+              fullWidth
+              options={order_status_info}
+              getOptionLabel={(option) => option?.value}
+              onChange={(e, value) => setSelectedStatus(value?.value || null)}
+              renderOption={(props, option) => (
+                <li {...props} key={option?.label}>
+                  {option?.value}
+                </li>
+              )}
+              renderInput={(params) => (
+                <CustomTextField
+                  {...params}
+                  label="Select Order Status"
+                  placeholder="Select Order Status"
                 />
-                Wait...
-              </div>
-            </Button>
-          ) : (
-            <Button
-              onClick={() => handleFilterOrderData()}
-              variant="contained"
-              sx={{ backgroundColor: "#7367F0 !important" }}
-            >
-              Search
-            </Button>
-          )}
-        </div>
+              )}
+            />
+          </div>
+
+          {/* Search Button */}
+          <div className="mt-5">
+            {loading ? (
+              <Button variant="contained" className="bg-cwgreen">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <CircularProgress
+                    size={20}
+                    style={{ color: "white", marginRight: 10 }}
+                  />
+                  Wait...
+                </div>
+              </Button>
+            ) : (
+              <Button
+                onClick={handleFilterOrderData}
+                variant="contained"
+                sx={{ backgroundColor: "#7367F0 !important" }}
+              >
+                Search
+              </Button>
+            )}
+          </div>
+        </Box>
       </div>
 
       <TableContainer
@@ -296,7 +339,12 @@ export default function OrderInfoTable() {
                   </TableCell>
 
                   <TableCell align="center">
-                    <Box display="flex" gap={2} justifyContent="center">
+                    <Box
+                      display="flex"
+                      gap={1.5}
+                      justifyContent="center"
+                      flexWrap="wrap"
+                    >
                       {order?.order_status !== "Confirm" && (
                         <Button
                           onClick={() =>
@@ -309,6 +357,7 @@ export default function OrderInfoTable() {
                           Confirm
                         </Button>
                       )}
+
                       {order?.order_status !== "Cancel" && (
                         <Button
                           onClick={() =>
@@ -319,6 +368,19 @@ export default function OrderInfoTable() {
                           size="small"
                         >
                           Cancel
+                        </Button>
+                      )}
+
+                      {order?.order_status !== "Returned" && (
+                        <Button
+                          onClick={() =>
+                            handleUpdateOrderStatus(order?._id, "Returned", i)
+                          }
+                          variant="outlined"
+                          color="warning"
+                          size="small"
+                        >
+                          Returned
                         </Button>
                       )}
                     </Box>
@@ -345,4 +407,5 @@ const order_status_info = [
   { label: "Pending", value: "Pending" },
   { label: "Confirm", value: "Confirm" },
   { label: "Cancel", value: "Cancel" },
+  { label: "Returned", value: "Returned" },
 ];
