@@ -20,7 +20,6 @@ import {
 import SearchField from "@/@core/components/mui/search-field";
 import axiosWithoutCredential from "@/configs/axios/axiosWithoutCredential";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AddItemToStorePageModal from "../modal/modal";
 import CustomTextField from "@/@core/components/mui/text-field";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -31,19 +30,21 @@ import { useSelector } from "react-redux";
 import { useAdmin } from "@/@core/hooks/fetch-data/admin/useAdmin";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
 export default function DataTable() {
   const [loading, setLoading] = React.useState(false);
   const [allProductInfo, setAllProductInfo] = React.useState([]);
   const [typeInfo, setTypeInfo] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState("");
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [categoryInfo, setCategoryInfo] = React.useState([]);
   const [open, setOpen] = React.useState({
     modalOpen: false,
     dataInfo: "",
     product: "",
     index: -1,
   });
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const userCredential = useSelector((state) => state.user.loginUserInfo);
   const { saveLoggedInUserInfo } = useAdmin();
@@ -90,11 +91,29 @@ export default function DataTable() {
       });
   };
 
+  const getAllCategoryInfoByType = async (id) => {
+    const data = {
+      store_info: userCredential?.merchantId,
+      type_info: id,
+    };
+
+    await axiosWithoutCredential
+      .put(`/api/v1/category/all-category-by-store-and-type`, data)
+      .then((result) => {
+        setCategoryInfo(result?.data?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const getAllProductInfoByType = async () => {
     setLoading(true);
     const dataObj = {
       store_id: userCredential?.merchantId,
+      category_info: searchValue?.category_info,
+      is_active: searchValue?.is_active,
     };
+
     await axiosWithoutCredential
       .put(
         `/api/v1/kids-product/product-info-by-type/${searchValue?.type_id}`,
@@ -186,15 +205,94 @@ export default function DataTable() {
             getOptionLabel={(option) => option?.type_info?.type_name}
             onChange={(e, value) => {
               setSearchValue({
-                ...searchValue,
+                // ...searchValue,
                 type_id: value?.type_info?._id,
               });
+              getAllCategoryInfoByType(value?.type_info?._id);
             }}
             renderInput={(params) => (
               <CustomTextField
                 {...params}
                 label="Select Type"
                 placeholder="Select Type"
+                font="bold"
+              />
+            )}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            width: { xs: "100%", sm: "48%", md: "30%", lg: "20%" },
+            mt: 2,
+            ml: 2,
+          }}
+        >
+          <Autocomplete
+            fullWidth
+            size="small"
+            disablePortal
+            id="combo-box-demo"
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option?.category_info?._id}>
+                  {option?.category_info?.category_name}
+                </li>
+              );
+            }}
+            options={categoryInfo}
+            getOptionLabel={(option) =>
+              option?.category_info?.category_name || ""
+            }
+            onChange={(e, value) => {
+              setSearchValue({
+                ...searchValue,
+                category_info: value?.category_info?._id,
+              });
+            }}
+            renderInput={(params) => (
+              <CustomTextField
+                {...params}
+                label="Select Product Category"
+                placeholder="Select Product Category"
+                font="bold"
+              />
+            )}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            width: { xs: "100%", sm: "48%", md: "30%", lg: "20%" },
+            mt: 2,
+            ml: 2,
+          }}
+        >
+          <Autocomplete
+            fullWidth
+            size="small"
+            disablePortal
+            id="combo-box-demo"
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.label}>
+                  {option?.label}
+                </li>
+              );
+            }}
+            options={product_status_info}
+            getOptionLabel={(option) => option?.label}
+            onChange={(e, value) => {
+              setSearchValue({
+                ...searchValue,
+                is_active: value?.value,
+              });
+            }}
+            renderInput={(params) => (
+              <CustomTextField
+                {...params}
+                label="Select Product Status"
+                placeholder="Select Product Status"
                 font="bold"
               />
             )}
@@ -442,3 +540,8 @@ export default function DataTable() {
     </Paper>
   );
 }
+
+const product_status_info = [
+  { label: "Active", value: true },
+  { label: "Inactive", value: false },
+];
