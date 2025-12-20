@@ -14,7 +14,6 @@ import MultipleImageUploader from "@/@core/hooks/photo-editor/multiple-img-uploa
 import axiosWithoutCredential from "@/configs/axios/axiosWithoutCredential";
 import Chip from "@mui/material/Chip";
 import { BaseAppUrl } from "@/@core/utlis/secretVariable";
-import { all_colour } from "@/@core/constants/all-colour";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 
@@ -31,7 +30,6 @@ const ItemBasicInfo = ({
   setShowSavedImg,
   shop_id,
 }) => {
-  const [colors, setcolors] = React.useState([]);
   const [imageUrlApp, setImageUrlapp] = useState("");
   const [imageUrlWeb, setImageUrlWeb] = useState("");
   const [brandInfo, setBrandInfo] = React.useState([]);
@@ -134,14 +132,6 @@ const ItemBasicInfo = ({
       } else if (Array.isArray(productsData.sizes)) {
         console.log(productsData.sizes);
         setSelectedSizes(productsData.sizes);
-      }
-    }
-
-    if (productsData?.colors) {
-      if (typeof productsData.colors === "string") {
-        setcolors(productsData.colors.split(",").map((c) => c.trim()));
-      } else if (Array.isArray(productsData.colors)) {
-        setcolors(productsData.colors);
       }
     }
   }, []);
