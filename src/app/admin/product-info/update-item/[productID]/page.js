@@ -172,6 +172,7 @@ const UpdateGroceryItems = ({ handleClose, product, index }) => {
     productsData.previous_web_img = othersProduct?.web_image;
     productsData.previous_app_img = othersProduct?.app_image;
     productsData.previous_details_img = othersProduct?.detail_product_image;
+    productsData.previous_img_by_color = othersProduct?.images_by_color;
 
     let isImageUpdated = false;
     if (productsData.app_image?.path || productsData.app_image?.relativePath) {
@@ -192,15 +193,30 @@ const UpdateGroceryItems = ({ handleClose, product, index }) => {
     }
     const formData = new FormData();
 
+    if (productsData.detail_product_image?.length) {
+      productsData.detail_product_image.forEach((image, i) => {
+        if (i < 9) {
+          formData.append("detail_product_image", image.file);
+        }
+      });
+    }
+
+    if (productsData.images_by_color?.length) {
+      productsData.images_by_color.forEach((image, i) => {
+        if (i < 9) {
+          formData.append("images_by_color", image.file);
+        }
+      });
+    }
+
+    // append other fields after that
     for (const key in productsData) {
-      if (key !== "detail_product_image") {
+      if (
+        key !== "detail_product_image" &&
+        key !== "images_by_color" &&
+        productsData[key] !== undefined
+      ) {
         formData.append(key, productsData[key]);
-      } else {
-        productsData[key].forEach((image, i) => {
-          if (i < 9 && image?.file) {
-            formData.append("detail_product_image", image.file);
-          }
-        });
       }
     }
 

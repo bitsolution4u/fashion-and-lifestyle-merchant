@@ -6,17 +6,17 @@ import {
   Typography,
   Autocomplete,
   TextField,
-} from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import CustomTextField from '@/@core/components/mui/text-field';
-import SinngleImgUpload from '@/@core/hooks/photo-editor/single-image-upload';
-import MultipleImageUploader from '@/@core/hooks/photo-editor/multiple-img-upload';
-import axiosWithoutCredential from '@/configs/axios/axiosWithoutCredential';
-import Chip from '@mui/material/Chip';
-import { BaseAppUrl } from '@/@core/utlis/secretVariable';
-import { all_colour } from '@/@core/constants/all-colour';
-import { useSearchParams } from 'next/navigation';
-import { useSelector } from 'react-redux';
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import CustomTextField from "@/@core/components/mui/text-field";
+import SinngleImgUpload from "@/@core/hooks/photo-editor/single-image-upload";
+import MultipleImageUploader from "@/@core/hooks/photo-editor/multiple-img-upload";
+import axiosWithoutCredential from "@/configs/axios/axiosWithoutCredential";
+import Chip from "@mui/material/Chip";
+import { BaseAppUrl } from "@/@core/utlis/secretVariable";
+import { all_colour } from "@/@core/constants/all-colour";
+import { useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
 
 const ItemBasicInfo = ({
   handleAppImageUrl,
@@ -29,13 +29,11 @@ const ItemBasicInfo = ({
   handleProductDataChange,
   productsData,
   setShowSavedImg,
-  shop_id
+  shop_id,
 }) => {
-
-
   const [colors, setcolors] = React.useState([]);
-  const [imageUrlApp, setImageUrlapp] = useState('');
-  const [imageUrlWeb, setImageUrlWeb] = useState('');
+  const [imageUrlApp, setImageUrlapp] = useState("");
+  const [imageUrlWeb, setImageUrlWeb] = useState("");
   const [brandInfo, setBrandInfo] = React.useState([]);
   const [selectBrandInfo, setSelectBrandInfo] = useState({});
   const [categoryInfo, setCategoryInfo] = React.useState([]);
@@ -44,34 +42,40 @@ const ItemBasicInfo = ({
   const [typeInfo, setTypeInfo] = React.useState([]);
   const [subcategoryInfo, setSubCategoryInfo] = React.useState([]);
   const [selectSubCategoryInfo, setSelectSubCategoryInfo] = useState({});
-  const [SizeInfo, setSizeInfo]= useState([])
-  const [selectedSizes, setSelectedSizes]= useState([])
+  const [SizeInfo, setSizeInfo] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
 
- console.log(selectedSizes);
+  console.log(selectedSizes);
   const getAllTypeInfo = async () => {
     await axiosWithoutCredential
-     .get(`/api/v1/type/all-type-by-store/${productsData?.store_info?._id || shop_id}`)
+      .get(
+        `/api/v1/type/all-type-by-store/${
+          productsData?.store_info?._id || shop_id
+        }`
+      )
       .then((result) => {
         setTypeInfo(result?.data?.data);
       })
       .catch((error) => {});
   };
 
-
-  const getAllCategoryInfoByType= async (id) => {
-      const data = {store_info: productsData?.store_info?._id || shop_id, type_info: id }
-      await axiosWithoutCredential
-      .put(`/api/v1/category/all-category-by-store-and-type`, data)
-        .then((result) => {
-          setCategoryInfo(result?.data?.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+  const getAllCategoryInfoByType = async (id) => {
+    const data = {
+      store_info: productsData?.store_info?._id || shop_id,
+      type_info: id,
     };
+    await axiosWithoutCredential
+      .put(`/api/v1/category/all-category-by-store-and-type`, data)
+      .then((result) => {
+        setCategoryInfo(result?.data?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const getAllBrandInfo = async () => {
     await axiosWithoutCredential
-      .get('/api/v1/brand/all-brand')
+      .get("/api/v1/brand/all-brand")
       .then((result) => {
         setBrandInfo(result?.data?.data);
       })
@@ -79,8 +83,12 @@ const ItemBasicInfo = ({
   };
 
   const getAllSubcategoryInfoByCat = async (id) => {
-    const data = {store_info: productsData?.store_info?._id || shop_id, category_info: id, type_info: selectTypeInfo?.type_info?._id }
-      await axiosWithoutCredential
+    const data = {
+      store_info: productsData?.store_info?._id || shop_id,
+      category_info: id,
+      type_info: selectTypeInfo?.type_info?._id,
+    };
+    await axiosWithoutCredential
       .put(`/api/v1/sub-category/all-subcat-by-store-and-type`, data)
       .then((result) => {
         setSubCategoryInfo(result?.data?.data);
@@ -94,43 +102,52 @@ const ItemBasicInfo = ({
     getAllBrandInfo();
     getAllTypeInfo();
 
-    const extractInfo = (info,nameKey, objectName) => ({
-    [objectName]: {
-      _id: info?._id ?? "",
-      [nameKey]: info?.[nameKey] ?? "",
-    }});
-
-    setSelectTypeInfo(extractInfo(productsData?.type_info,'type_name','type_info'));
-    setSelectCategoryInfo(extractInfo(productsData?.category_info,'category_name','category_info'));
-    setSelectSubCategoryInfo(extractInfo(productsData?.sub_category_info, 'sub_category_name','sub_category_info'));
-
-    setSelectBrandInfo({
-        _id: productsData?.brand_info?._id ?? '',
-        brand_name: productsData?.brand_info?.brand_name ?? '',
+    const extractInfo = (info, nameKey, objectName) => ({
+      [objectName]: {
+        _id: info?._id ?? "",
+        [nameKey]: info?.[nameKey] ?? "",
+      },
     });
 
+    setSelectTypeInfo(
+      extractInfo(productsData?.type_info, "type_name", "type_info")
+    );
+    setSelectCategoryInfo(
+      extractInfo(productsData?.category_info, "category_name", "category_info")
+    );
+    setSelectSubCategoryInfo(
+      extractInfo(
+        productsData?.sub_category_info,
+        "sub_category_name",
+        "sub_category_info"
+      )
+    );
 
+    setSelectBrandInfo({
+      _id: productsData?.brand_info?._id ?? "",
+      brand_name: productsData?.brand_info?.brand_name ?? "",
+    });
 
     if (productsData?.sizes) {
       if (typeof productsData.sizes === "string") {
-        setSelectedSizes(productsData.sizes.split(",").map(s => s.trim()));
-      } 
-    else if (Array.isArray(productsData.sizes)) {
-      console.log(productsData.sizes);
-      setSelectedSizes(productsData.sizes);
+        setSelectedSizes(productsData.sizes.split(",").map((s) => s.trim()));
+      } else if (Array.isArray(productsData.sizes)) {
+        console.log(productsData.sizes);
+        setSelectedSizes(productsData.sizes);
+      }
     }
-  }
 
-  if (productsData?.colors) {
-    if (typeof productsData.colors === "string") {
-      setcolors(productsData.colors.split(",").map(c => c.trim()));
-    } else if (Array.isArray(productsData.colors)) {
-      setcolors(productsData.colors);
+    if (productsData?.colors) {
+      if (typeof productsData.colors === "string") {
+        setcolors(productsData.colors.split(",").map((c) => c.trim()));
+      } else if (Array.isArray(productsData.colors)) {
+        setcolors(productsData.colors);
+      }
     }
-  }
   }, []);
 
   const [images, setImages] = useState([]);
+  const [imagesByColor, setImagesByColor] = useState([]);
 
   const handleImageWeb = (file, src) => {
     if (file && src) {
@@ -139,7 +156,7 @@ const ItemBasicInfo = ({
     } else {
       handleWebImageUrl(imageUrlWeb);
     }
-    handleProductDataChange('web_image', file);
+    handleProductDataChange("web_image", file);
   };
 
   const handleImageApp = (file, src) => {
@@ -149,32 +166,49 @@ const ItemBasicInfo = ({
     } else {
       handleAppImageUrl(imageUrlApp);
     }
-    handleProductDataChange('app_image', file);
+    handleProductDataChange("app_image", file);
   };
 
   const handleImagesDetailProduct = (imageFiles) => {
     setImages((prevImages) => [...prevImages, ...imageFiles]);
-    handleProductDataChange('detail_product_image', [...images, ...imageFiles]);
+    handleProductDataChange("detail_product_image", [...images, ...imageFiles]);
+  };
+
+  const handleImageByColorProduct = (imageFiles) => {
+    setImages((prevImages) => [...prevImages, ...imageFiles]);
+    handleProductDataChange("images_by_color", [
+      ...imagesByColor,
+      ...imageFiles,
+    ]);
   };
 
   const handleImageDelete = (index) => {
     setImages((prevImages) => {
       const updatedImages = [...prevImages];
       updatedImages.splice(index, 1);
-      handleProductDataChange('detail_product_image', updatedImages);
+      handleProductDataChange("detail_product_image", updatedImages);
       return updatedImages;
     });
   };
 
+  const handleColorImageDelete = (index) => {
+    setImagesByColor((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1);
+      handleProductDataChange("images_by_color", updatedImages);
+      return updatedImages;
+    });
+  };
   let [allDoc, setAllDoc] = useState([]);
+  let [allcolorImgDoc, setAllColorImgDoc] = useState([]);
   const [imgLoading, setImgLoading] = useState(false);
 
   useEffect(() => {
     if (
-      productsData?.app_image !== 'null' &&
-      productsData?.app_image !== 'undefined' &&
+      productsData?.app_image !== "null" &&
+      productsData?.app_image !== "undefined" &&
       productsData?.app_image !== null &&
-      productsData?.app_image !== '' &&
+      productsData?.app_image !== "" &&
       duringUpdate
     ) {
       let image_url_app = `${BaseAppUrl}/${productsData?.app_image}`;
@@ -182,10 +216,10 @@ const ItemBasicInfo = ({
     }
 
     if (
-      productsData?.web_image !== 'null' &&
-      productsData?.web_image !== 'undefined' &&
+      productsData?.web_image !== "null" &&
+      productsData?.web_image !== "undefined" &&
       productsData?.web_image !== null &&
-      productsData?.web_image !== '' &&
+      productsData?.web_image !== "" &&
       duringUpdate
     ) {
       let image_url_web = `${BaseAppUrl}/${productsData?.web_image}`;
@@ -200,6 +234,15 @@ const ItemBasicInfo = ({
       setAllDoc(newDocs);
       setImgLoading(true);
     } else setImgLoading(true);
+    if (productsData?.images_by_color) {
+      console.log(productsData?.images_by_color);
+      const newDocs = productsData?.images_by_color?.map((doc) => ({
+        url: doc.url ? doc.url : `${BaseAppUrl}/${doc}`,
+        file: null,
+      }));
+      setAllColorImgDoc(newDocs);
+      setImgLoading(true);
+    } else setImgLoading(true);
   }, [productsData?.detail_product_image, productsData]);
 
   return (
@@ -207,20 +250,20 @@ const ItemBasicInfo = ({
       <Box className="px-5 mt-12">
         <Typography
           variant="h6"
-          sx={{ textAlign: 'center', fontWeight: '700', p: 3 }}
+          sx={{ textAlign: "center", fontWeight: "700", p: 3 }}
         >
           Basic Information
         </Typography>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
-            <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+            <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
               <InputLabel
                 htmlFor="outlined-textarea"
                 sx={{
-                  position: 'relative',
+                  position: "relative",
                   top: -18,
                   left: -12,
-                  color: '#000',
+                  color: "#000",
                   zIndex: 0,
                 }}
               >
@@ -235,7 +278,7 @@ const ItemBasicInfo = ({
                 size="small"
                 onChange={(e) => {
                   handleProductDataChange(
-                    'product_title_eng',
+                    "product_title_eng",
                     e?.target?.value
                   );
                 }}
@@ -246,14 +289,14 @@ const ItemBasicInfo = ({
               </span>
             </FormControl>
 
-            <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+            <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
               <InputLabel
                 htmlFor="outlined-textarea"
                 sx={{
-                  position: 'relative',
+                  position: "relative",
                   top: -18,
                   left: -12,
-                  color: '#000',
+                  color: "#000",
                   zIndex: 0,
                 }}
               >
@@ -264,7 +307,7 @@ const ItemBasicInfo = ({
                 value={productsData?.product_title_beng}
                 onChange={(e) => {
                   handleProductDataChange(
-                    'product_title_beng',
+                    "product_title_beng",
                     e?.target?.value
                   );
                 }}
@@ -274,14 +317,14 @@ const ItemBasicInfo = ({
                 size="small"
               />
             </FormControl>
-            <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+            <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
               <InputLabel
                 htmlFor="outlined-textarea"
                 sx={{
-                  position: 'relative',
+                  position: "relative",
                   top: -18,
                   left: -12,
-                  color: '#000',
+                  color: "#000",
                   zIndex: 0,
                 }}
               >
@@ -303,10 +346,10 @@ const ItemBasicInfo = ({
                 value={selectTypeInfo}
                 getOptionLabel={(option) => option?.type_info?.type_name || ""}
                 isOptionEqualToValue={(option, value) =>
-                    option?.type_info?._id === value?.type_info?._id
+                  option?.type_info?._id === value?.type_info?._id
                 }
                 onChange={(e, value) => {
-                  handleProductDataChange('type_info', value?.type_info?._id);
+                  handleProductDataChange("type_info", value?.type_info?._id);
                   setSelectTypeInfo(value);
                   getAllCategoryInfoByType(value?.type_info?._id);
                 }}
@@ -319,14 +362,14 @@ const ItemBasicInfo = ({
                 )}
               />
             </FormControl>
-            <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+            <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
               <InputLabel
                 htmlFor="outlined-textarea"
                 sx={{
-                  position: 'relative',
+                  position: "relative",
                   top: -18,
                   left: -12,
-                  color: '#000',
+                  color: "#000",
                   zIndex: 0,
                 }}
               >
@@ -346,12 +389,17 @@ const ItemBasicInfo = ({
                 }}
                 options={categoryInfo}
                 value={selectCategoryInfo || {}}
-                getOptionLabel={(option) => option?.category_info?.category_name || ""}
+                getOptionLabel={(option) =>
+                  option?.category_info?.category_name || ""
+                }
                 isOptionEqualToValue={(option, value) =>
-                    option?.category_info?._id === value?.category_info?._id
+                  option?.category_info?._id === value?.category_info?._id
                 }
                 onChange={(e, value) => {
-                  handleProductDataChange('category_info', value?.category_info?._id);
+                  handleProductDataChange(
+                    "category_info",
+                    value?.category_info?._id
+                  );
                   getAllSubcategoryInfoByCat(value?.category_info?._id);
                   setSelectCategoryInfo(value);
                 }}
@@ -393,14 +441,14 @@ const ItemBasicInfo = ({
           <Grid item xs={12} md={6}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
-                <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+                <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
                   <InputLabel
                     htmlFor="outlined-textarea"
                     sx={{
-                      position: 'relative',
+                      position: "relative",
                       top: -18,
                       left: -12,
-                      color: '#000',
+                      color: "#000",
                       zIndex: 0,
                     }}
                   >
@@ -423,7 +471,7 @@ const ItemBasicInfo = ({
                     value={selectBrandInfo}
                     getOptionLabel={(option) => option?.brand_name}
                     onChange={(e, value) => {
-                      handleProductDataChange('brand_info', value?._id);
+                      handleProductDataChange("brand_info", value?._id);
                       setSelectBrandInfo({
                         _id: value?._id,
                         brand_name: value?.brand_name,
@@ -440,14 +488,14 @@ const ItemBasicInfo = ({
                 </FormControl>
               </Grid>
               <Grid item xs={12} md={6}>
-                <FormControl variant="filled" sx={{ m: 1, width: '100%' }}>
+                <FormControl variant="filled" sx={{ m: 1, width: "100%" }}>
                   <InputLabel
                     htmlFor="outlined-textarea"
                     sx={{
-                      position: 'relative',
+                      position: "relative",
                       top: -18,
                       left: -12,
-                      color: '#000',
+                      color: "#000",
                       zIndex: 0,
                     }}
                   >
@@ -468,15 +516,25 @@ const ItemBasicInfo = ({
                     }}
                     options={subcategoryInfo}
                     value={selectSubCategoryInfo}
-                    getOptionLabel={(option) => option?.sub_category_info?.sub_category_name || ""}
+                    getOptionLabel={(option) =>
+                      option?.sub_category_info?.sub_category_name || ""
+                    }
                     isOptionEqualToValue={(option, value) =>
-                        option?.sub_category_info?._id === value?.sub_category_info?._id  
+                      option?.sub_category_info?._id ===
+                      value?.sub_category_info?._id
                     }
                     onChange={(e, value) => {
-                      
-                      value?.sub_category_info?.size_info && setSizeInfo(value?.sub_category_info?.size_info?.split(", ").map(s => s.trim()))
-                      !value?.sub_category_info?.size_info && setSizeInfo([])
-                      handleProductDataChange('sub_category_info', value?.sub_category_info?._id);
+                      value?.sub_category_info?.size_info &&
+                        setSizeInfo(
+                          value?.sub_category_info?.size_info
+                            ?.split(", ")
+                            .map((s) => s.trim())
+                        );
+                      !value?.sub_category_info?.size_info && setSizeInfo([]);
+                      handleProductDataChange(
+                        "sub_category_info",
+                        value?.sub_category_info?._id
+                      );
                       setSelectSubCategoryInfo(value);
                     }}
                     renderInput={(params) => (
@@ -494,7 +552,7 @@ const ItemBasicInfo = ({
                 </FormControl>
               </Grid>
             </Grid>
-           <Grid container spacing={3}>
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <CustomTextField
                   sx={{ m: 1 }}
@@ -502,31 +560,41 @@ const ItemBasicInfo = ({
                   value={productsData.max_retail_price}
                   placeholder="Maximum Retail Price (MRP)"
                   onChange={(e) => {
-                    handleProductDataChange('max_retail_price', e?.target?.value);
-                    e.target.value, 'max_retail_price';
+                    handleProductDataChange(
+                      "max_retail_price",
+                      e?.target?.value
+                    );
+                    e.target.value, "max_retail_price";
                   }}
                   label="Maximum Retail Price (MRP)"
                   id="outlined-size-small"
                   size="small"
-                /> 
-             </Grid>
+                />
+              </Grid>
               <Grid item xs={12} md={6}>
                 <Autocomplete
                   multiple
                   sx={{ mt: 1.8 }}
                   id="color-autocomplete"
-                  options={SizeInfo }
-                  value={selectedSizes || []}
+                  options={(SizeInfo || []).filter(
+                    (item) => item && item !== "null" && item !== "undefined"
+                  )}
+                  value={(selectedSizes || []).filter(
+                    (item) => item && item !== "null" && item !== "undefined"
+                  )}
                   onChange={(event, newValue) => {
-                    setSelectedSizes(newValue);
-                    handleProductDataChange('sizes', newValue);
+                    const cleanValues = (newValue || []).filter(
+                      (item) => item && item !== "null" && item !== "undefined"
+                    );
+                    setSelectedSizes(cleanValues);
+                    handleProductDataChange("sizes", cleanValues);
                   }}
                   renderTags={(selected, getTagProps) =>
                     selected.map((option, index) => (
                       <Chip
-                        label={option}
+                        label={String(option)}
                         {...getTagProps({ index })}
-                        key={option}
+                        key={index}
                       />
                     ))
                   }
@@ -537,11 +605,14 @@ const ItemBasicInfo = ({
                       placeholder="Select Available Sizes"
                     />
                   )}
-                  getOptionLabel={(option) => option}
+                  getOptionLabel={(option) =>
+                    option && option !== "null" && option !== "undefined"
+                      ? String(option)
+                      : ""
+                  }
                   isOptionEqualToValue={(option, value) => option === value}
                 />
-            
-            </Grid>
+              </Grid>
             </Grid>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
@@ -552,7 +623,7 @@ const ItemBasicInfo = ({
                   label="Less"
                   value={productsData.less}
                   onChange={(e) => {
-                    handleProductDataChange('less', e?.target?.value);
+                    handleProductDataChange("less", e?.target?.value);
                   }}
                   id="outlined-size-small"
                   size="small"
@@ -561,7 +632,7 @@ const ItemBasicInfo = ({
               <Grid item xs={12} md={6}>
                 <Autocomplete
                   fullWidth
-                  sx={{ mt: 1, width: '100%' }}
+                  sx={{ mt: 1, width: "100%" }}
                   size="small"
                   disablePortal
                   id="combo-box-demo"
@@ -575,7 +646,7 @@ const ItemBasicInfo = ({
                   options={type_Info}
                   getOptionLabel={(option) => option.symbol}
                   onChange={(e, value) => {
-                    handleProductDataChange('less_type', value?.type);
+                    handleProductDataChange("less_type", value?.type);
                   }}
                   renderInput={(params) => (
                     <CustomTextField
@@ -589,8 +660,8 @@ const ItemBasicInfo = ({
             </Grid>
 
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                {' '}
+              <Grid item xs={12} md={12}>
+                {" "}
                 <CustomTextField
                   sx={{ ml: 1, mt: 0.5 }}
                   fullWidth
@@ -598,70 +669,97 @@ const ItemBasicInfo = ({
                   label="Sale Price"
                   value={productsData?.sale_price}
                   onChange={(e) => {
-                    handleProductDataChange('sale_price', e?.target?.value);
-                    e.target.value, 'sale_price';
+                    handleProductDataChange("sale_price", e?.target?.value);
+                    e.target.value, "sale_price";
                   }}
                   id="outlined-size-small"
                   size="small"
-                />{' '}
+                />{" "}
               </Grid>
-              <Grid item xs={12} md={6}>
+              {/* <Grid item xs={12} md={6}>
                 <Autocomplete
                   multiple
-                  sx={{ mt: 1.2 }}
-                  id="color-autocomplete"
-                  options={all_colour}
-                  value={colors || []}
-                  onChange={(event, newValue) => {
-                    setcolors(newValue);
-                    handleProductDataChange('colors', newValue);
-                  }}
-                  renderTags={(selected, getTagProps) =>
-                    selected.map((option, index) => (
-                      <Chip
-                        label={option}
-                        {...getTagProps({ index })}
-                        key={option}
+                  options={filteredColors} // render only filtered
+                  value={colors}
+                  sx={{ mt: 3 }}
+                  onChange={(e, value) => setcolors(value)}
+                  inputValue={searchText}
+                  onInputChange={(e, value) => setSearchText(value)}
+                  getOptionLabel={(o) => o.name}
+                  renderOption={(props, option) => (
+                    <li
+                      {...props}
+                      key={option.name}
+                      style={{ display: "flex", gap: 10 }}
+                    >
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          bgcolor: option.hex,
+                          borderRadius: "50%",
+                          border: "1px solid #ccc",
+                        }}
                       />
-                    ))
-                  }
+                      {option.name}
+                    </li>
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Select Colors"
-                      placeholder="Search colors..."
+                      label="Search Colors"
+                      placeholder="Type to search…"
                     />
                   )}
-                  getOptionLabel={(option) => option}
-                  isOptionEqualToValue={(option, value) => option === value}
                 />
-            
-              </Grid>
+              </Grid> */}
             </Grid>
-
-            <Grid
-              className="mt-1"
-              item
-              container
-              alignItems="center"
-              spacing={3}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 8,
+                mt: 4,
+                alignItems: "flex-start",
+              }}
             >
-              <Grid item container alignItems="center" spacing={3}>
-                <Box className="flex justify-center w-full mt-12">
-                  {imgLoading && (
-                    <MultipleImageUploader
-                      docInfo={allDoc ? allDoc : []}
-                      width={200}
-                      height={120}
-                      title="detail_product_image"
-                      handleImage={handleImagesDetailProduct}
-                      handleImageDelete={handleImageDelete}
-                      setImages={setImages}
-                    />
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
+              {/* LEFT */}
+              <Box>
+                <Typography sx={{ mb: 1, fontWeight: 500 }}>
+                  Details Image
+                </Typography>
+
+                {imgLoading && (
+                  <MultipleImageUploader
+                    docInfo={allDoc || []}
+                    width={200}
+                    height={120}
+                    title="detail_product_image"
+                    handleImage={handleImagesDetailProduct}
+                    handleImageDelete={handleImageDelete}
+                    setImages={setImages}
+                  />
+                )}
+              </Box>
+
+              {/* RIGHT */}
+              <Box>
+                <Typography sx={{ mb: 1, fontWeight: 500 }}>
+                  Image By Colors
+                </Typography>
+
+                {imgLoading && (
+                  <MultipleImageUploader
+                    docInfo={allcolorImgDoc || []}
+                    width={200}
+                    height={120}
+                    title="color_product_image"
+                    handleImage={handleImageByColorProduct}
+                    handleImageDelete={handleColorImageDelete}
+                    setImagesByColor={setImagesByColor}
+                  />
+                )}
+              </Box>
+            </Box>
           </Grid>
         </Grid>
       </Box>
@@ -672,6 +770,6 @@ const ItemBasicInfo = ({
 export default ItemBasicInfo;
 
 const type_Info = [
-  { symbol: '%', type: 'Percent' },
-  { symbol: '৳', type: 'Fixed' },
+  { symbol: "%", type: "Percent" },
+  { symbol: "৳", type: "Fixed" },
 ];

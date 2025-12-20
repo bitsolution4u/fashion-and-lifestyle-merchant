@@ -168,18 +168,33 @@ const AddGroceryItems = ({ params }) => {
     setProgressing(true);
     const formData = new FormData();
 
+    if (productsData.detail_product_image?.length) {
+      productsData.detail_product_image.forEach((image, i) => {
+        if (i < 9) {
+          formData.append("detail_product_image", image.file);
+        }
+      });
+    }
+
+    if (productsData.images_by_color?.length) {
+      productsData.images_by_color.forEach((image, i) => {
+        if (i < 9) {
+          formData.append("images_by_color", image.file);
+        }
+      });
+    }
+
+    // append other fields after that
     for (const key in productsData) {
-      if (key !== "detail_product_image") {
+      if (
+        key !== "detail_product_image" &&
+        key !== "images_by_color" &&
+        productsData[key] !== undefined
+      ) {
         formData.append(key, productsData[key]);
-      } else {
-        productsData[key] &&
-          productsData[key].forEach((image, i) => {
-            if (i < 9) {
-              formData.append("detail_product_image", image.file);
-            }
-          });
       }
     }
+
     formData.append("store_info", userCredential?.merchantId);
     formData.append("is_active", false);
     await axiosWithFormData
