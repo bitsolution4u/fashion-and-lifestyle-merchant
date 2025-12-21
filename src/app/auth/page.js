@@ -128,7 +128,7 @@ const Login = () => {
                   type="text"
                   required
                   {...register("contact", { required: true })}
-                  defaultValue={"+8801859168695"}
+                  // defaultValue={"+8801859168695"}
                   placeholder="Enter your phone number"
                   className="mt-1 w-full px-5 py-3 border border-gray-300 rounded-2xl focus:ring-pink-400 focus:border-pink-400 shadow-sm hover:shadow-md transition-all duration-300"
                 />
@@ -145,7 +145,7 @@ const Login = () => {
                   type="password"
                   required
                   {...register("password", { required: true })}
-                  defaultValue={"406444"}
+                  // defaultValue={"406444"}
                   placeholder="Enter password"
                   className="mt-1 w-full px-5 py-3 border border-gray-300 rounded-2xl focus:ring-pink-400 focus:border-pink-400 shadow-sm hover:shadow-md transition-all duration-300"
                 />

@@ -7,6 +7,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import ChecklistIcon from "@mui/icons-material/Checklist";
 import {
   Autocomplete,
   Box,
@@ -25,12 +26,35 @@ import "react-datepicker/dist/react-datepicker.css";
 import CustomDateInput from "./PickersCustomInput";
 import CustomTextField from "@/@core/components/mui/text-field";
 import addDays from "date-fns/addDays";
+import OrderListModal from "../modal/modal-orderList";
 
 export default function OrderInfoTable() {
   const [loading, setLoading] = React.useState(false);
   const [allOrderInfo, setAllOrderInfo] = React.useState([]);
   const [tempOrderInfo, setTempOrderInfo] = React.useState([]);
   const [selectedStatus, setSelectedStatus] = React.useState("Pending");
+
+  const [open, setOpen] = React.useState({
+    modalOpen: false,
+    dataInfo: "",
+    product: "",
+  });
+
+  const handleOpenModal = (action, product) =>
+    setOpen((prev) => ({
+      ...prev,
+      dataInfo: action,
+      modalOpen: true,
+      product: product,
+    }));
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setOpen((prev) => ({
+      ...prev,
+      name: value,
+    }));
+  };
 
   // --- Bangladesh date helpers ---
   const getBangladeshTodayStart = () => {
@@ -176,230 +200,255 @@ export default function OrderInfoTable() {
   };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
-        <Typography color="primary" fontWeight={600} fontSize={18}>
-          Customer Order Information
-        </Typography>
-      </Box>
-      <Divider />
-
-      <div className="w-full px-5 my-8 mb-10">
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          {/* From Date */}
-          <div style={{ position: "relative", zIndex: 9999 }}>
-            <DatePicker
-              disablePortal
-              dateFormat="dd/MM/yyyy"
-              selected={minDate}
-              maxDate={addDays(new Date(), 0)}
-              onChange={(date) => setMinDate(date)}
-              customInput={<CustomDateInput label="From" />}
-            />
-          </div>
-
-          {/* To Date */}
-          <div style={{ position: "relative", zIndex: 9999 }}>
-            <DatePicker
-              disablePortal
-              dateFormat="dd/MM/yyyy"
-              selected={maxDate}
-              maxDate={addDays(new Date(), 0)}
-              onChange={(date) => {
-                const end = new Date(date);
-                end.setHours(23, 59, 59, 999); // ensure end of day
-                setMaxDate(end);
-              }}
-              customInput={<CustomDateInput label="To" />}
-            />
-          </div>
-
-          {/* Status Dropdown */}
-          <div style={{ minWidth: "220px" }}>
-            <Autocomplete
-              disablePortal
-              fullWidth
-              options={order_status_info}
-              getOptionLabel={(option) => option?.value}
-              onChange={(e, value) => setSelectedStatus(value?.value || null)}
-              renderOption={(props, option) => (
-                <li {...props} key={option?.label}>
-                  {option?.value}
-                </li>
-              )}
-              renderInput={(params) => (
-                <CustomTextField
-                  {...params}
-                  label="Select Order Status"
-                  placeholder="Select Order Status"
-                />
-              )}
-            />
-          </div>
-
-          {/* Search Button */}
-          <div className="mt-5">
-            {loading ? (
-              <Button variant="contained" className="bg-cwgreen">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <CircularProgress
-                    size={20}
-                    style={{ color: "white", marginRight: 10 }}
-                  />
-                  Wait...
-                </div>
-              </Button>
-            ) : (
-              <Button
-                onClick={handleFilterOrderData}
-                variant="contained"
-                sx={{ backgroundColor: "#7367F0 !important" }}
-              >
-                Search
-              </Button>
-            )}
-          </div>
+    <>
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
+          <Typography color="primary" fontWeight={600} fontSize={18}>
+            Customer Order Information
+          </Typography>
         </Box>
-      </div>
+        <Divider />
 
-      <TableContainer
-        sx={{ maxHeight: "70vh", minHeight: "20vh", overflow: "auto" }}
-      >
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">No.</TableCell>
-              <TableCell align="center">Order Date & Time</TableCell>
-              <TableCell align="center">Customer Name</TableCell>
-              <TableCell align="center">Address</TableCell>
-              <TableCell align="center">Contact</TableCell>
-              <TableCell align="center">Total</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
+        <div className="w-full px-5 my-8 mb-10">
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            {/* From Date */}
+            <div style={{ position: "relative", zIndex: 9999 }}>
+              <DatePicker
+                disablePortal
+                dateFormat="dd/MM/yyyy"
+                selected={minDate}
+                maxDate={addDays(new Date(), 0)}
+                onChange={(date) => setMinDate(date)}
+                customInput={<CustomDateInput label="From" />}
+              />
+            </div>
 
-          <TableBody>
-            {tempOrderInfo
-              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((order, i) => (
-                <TableRow hover key={order?._id}>
-                  <TableCell align="center">
-                    {page * rowsPerPage + i + 1}
-                  </TableCell>
+            {/* To Date */}
+            <div style={{ position: "relative", zIndex: 9999 }}>
+              <DatePicker
+                disablePortal
+                dateFormat="dd/MM/yyyy"
+                selected={maxDate}
+                maxDate={addDays(new Date(), 0)}
+                onChange={(date) => {
+                  const end = new Date(date);
+                  end.setHours(23, 59, 59, 999); // ensure end of day
+                  setMaxDate(end);
+                }}
+                customInput={<CustomDateInput label="To" />}
+              />
+            </div>
 
-                  <TableCell align="center">
-                    <span
-                      style={{
-                        background: "#EEF2FF",
-                        color: "#4F46E5",
-                        padding: "4px 12px",
-                        borderRadius: "6px",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatDate(order?.createdAt)}
-                    </span>
-                  </TableCell>
+            {/* Status Dropdown */}
+            <div style={{ minWidth: "220px" }}>
+              <Autocomplete
+                disablePortal
+                fullWidth
+                options={order_status_info}
+                getOptionLabel={(option) => option?.value}
+                onChange={(e, value) => setSelectedStatus(value?.value || null)}
+                renderOption={(props, option) => (
+                  <li {...props} key={option?.label}>
+                    {option?.value}
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <CustomTextField
+                    {...params}
+                    label="Select Order Status"
+                    placeholder="Select Order Status"
+                  />
+                )}
+              />
+            </div>
 
-                  <TableCell align="center">
-                    {order?.customerInfo?.customer_name}
-                  </TableCell>
+            {/* Search Button */}
+            <div className="mt-5">
+              {loading ? (
+                <Button variant="contained" className="bg-cwgreen">
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <CircularProgress
+                      size={20}
+                      style={{ color: "white", marginRight: 10 }}
+                    />
+                    Wait...
+                  </div>
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleFilterOrderData}
+                  variant="contained"
+                  sx={{ backgroundColor: "#7367F0 !important" }}
+                >
+                  Search
+                </Button>
+              )}
+            </div>
+          </Box>
+        </div>
 
-                  <TableCell align="center">
-                    {order?.customerInfo?.customer_address?.slice(0, 50)}
-                  </TableCell>
+        <TableContainer
+          sx={{ maxHeight: "70vh", minHeight: "20vh", overflow: "auto" }}
+        >
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">No.</TableCell>
+                <TableCell align="center">Order Date & Time</TableCell>
+                <TableCell align="center">Customer Name</TableCell>
+                <TableCell align="center">Address</TableCell>
+                <TableCell align="center">Contact</TableCell>
+                <TableCell align="center">Total</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
 
-                  <TableCell align="center">
-                    {order?.customerInfo?.contact_no}
-                  </TableCell>
+            <TableBody>
+              {tempOrderInfo
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((order, i) => (
+                  <TableRow hover key={order?._id}>
+                    <TableCell align="center">
+                      {page * rowsPerPage + i + 1}
+                    </TableCell>
 
-                  <TableCell align="center">{order?.totalAmount}</TableCell>
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          background: "#EEF2FF",
+                          color: "#4F46E5",
+                          padding: "4px 12px",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {formatDate(order?.createdAt)}
+                      </span>
+                    </TableCell>
 
-                  <TableCell align="center">
-                    <span
-                      style={{
-                        padding: "4px 12px",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        ...getStatusStyle(order?.order_status),
-                      }}
-                    >
-                      {order?.order_status}
-                    </span>
-                  </TableCell>
+                    <TableCell align="center">
+                      {order?.customerInfo?.customer_name}
+                    </TableCell>
 
-                  <TableCell align="center">
-                    <Box
-                      display="flex"
-                      gap={1.5}
-                      justifyContent="center"
-                      flexWrap="wrap"
-                    >
-                      {order?.order_status !== "Confirm" && (
+                    <TableCell align="center">
+                      {order?.customerInfo?.customer_address?.slice(0, 50)}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      {order?.customerInfo?.contact_no}
+                    </TableCell>
+
+                    <TableCell align="center">{order?.totalAmount}</TableCell>
+
+                    <TableCell align="center">
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: "8px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          ...getStatusStyle(order?.order_status),
+                        }}
+                      >
+                        {order?.order_status}
+                      </span>
+                    </TableCell>
+
+                    <TableCell align="center">
+                      <Box
+                        display="flex"
+                        gap={1.5}
+                        justifyContent="center"
+                        flexWrap="wrap"
+                      >
+                        {order?.order_status !== "Confirm" && (
+                          <Button
+                            onClick={() =>
+                              handleUpdateOrderStatus(order?._id, "Confirm", i)
+                            }
+                            variant="contained"
+                            color="success"
+                            size="small"
+                          >
+                            Confirm
+                          </Button>
+                        )}
+
+                        {order?.order_status !== "Cancel" && (
+                          <Button
+                            onClick={() =>
+                              handleUpdateOrderStatus(order?._id, "Cancel", i)
+                            }
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                          >
+                            Cancel
+                          </Button>
+                        )}
+
+                        {order?.order_status !== "Returned" && (
+                          <Button
+                            onClick={() =>
+                              handleUpdateOrderStatus(order?._id, "Returned", i)
+                            }
+                            variant="outlined"
+                            color="warning"
+                            size="small"
+                          >
+                            Returned
+                          </Button>
+                        )}
+
                         <Button
                           onClick={() =>
-                            handleUpdateOrderStatus(order?._id, "Confirm", i)
+                            handleOpenModal(
+                              "order-list",
+                              order,
+                              page * 10 + (i + 1)
+                            )
                           }
-                          variant="contained"
+                          variant="outlined"
                           color="success"
                           size="small"
+                          startIcon={<ChecklistIcon />}
                         >
-                          Confirm
+                          Order List
                         </Button>
-                      )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-                      {order?.order_status !== "Cancel" && (
-                        <Button
-                          onClick={() =>
-                            handleUpdateOrderStatus(order?._id, "Cancel", i)
-                          }
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                        >
-                          Cancel
-                        </Button>
-                      )}
+        <TablePagination
+          component="div"
+          count={tempOrderInfo?.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          rowsPerPageOptions={[10]}
+        />
+      </Paper>
 
-                      {order?.order_status !== "Returned" && (
-                        <Button
-                          onClick={() =>
-                            handleUpdateOrderStatus(order?._id, "Returned", i)
-                          }
-                          variant="outlined"
-                          color="warning"
-                          size="small"
-                        >
-                          Returned
-                        </Button>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <TablePagination
-        component="div"
-        count={tempOrderInfo?.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(e, newPage) => setPage(newPage)}
-        rowsPerPageOptions={[10]}
+      <OrderListModal
+        handleOpenModal={handleOpenModal}
+        open={open}
+        setOpen={setOpen}
+        handleChange={handleChange}
       />
-    </Paper>
+    </>
   );
 }
 
